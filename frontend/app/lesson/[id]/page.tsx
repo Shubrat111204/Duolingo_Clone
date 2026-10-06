@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import Duo from "@/components/Duo";
-import { speak, playCorrect, playWrong, playDone, soundOn } from "@/lib/sound";
 
 function WordBank({ bank, setAns }: { bank: string[]; setAns: (a: string) => void }) {
   const [picked, setPicked] = useState<number[]>([]);
@@ -16,14 +15,6 @@ function WordBank({ bank, setAns }: { bank: string[]; setAns: (a: string) => voi
         : <button key={i} className="chip" onClick={() => update([...picked, i])}>{w}</button>)}</div>
     </>
   );
-}
-
-function Mic({ onResult }: { onResult: (t: string) => void }) {
-  const [on, setOn] = useState(false);
-  const SR = typeof window !== "undefined" ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition : null;
-  if (!SR) return null;
-  const go = () => { const r = new SR(); r.lang = "es-ES"; r.onstart = () => setOn(true); r.onend = () => setOn(false); r.onresult = (e: any) => onResult(e.results[0][0].transcript); r.start(); };
-  return <button className={"mic" + (on ? " live" : "")} onClick={go}>🎤 {on ? "Listening…" : "Speak your answer"}</button>;
 }
 
 function Match({ pairs, onWrong, onDone }: { pairs: string[][]; onWrong: () => void; onDone: () => void }) {
@@ -65,7 +56,6 @@ export default function Lesson() {
   const [hearts, setHearts] = useState(5);
   const [res, setRes] = useState<any>(null);
   const [key, setKey] = useState(0);
-  const [spoken, setSpoken] = useState("");
 
   useEffect(() => {
     api.lesson(id).then((l) => { setQ(l.exercises); setTotal(l.exercises.length); });
@@ -77,17 +67,13 @@ export default function Lesson() {
   const check = async () => {
     if (!ans || st !== "idle") return;
     const c = await api.check(ex.id, ans);
-    setSol(c.solution);
-    const sp = ex.type === "choice" ? (ex.prompt.match(/"(.+)"/) || [])[1] : ex.type === "match" ? "" : c.solution;
-    setSpoken(sp || "");
-    if (c.correct) { setSt("ok"); playCorrect(); } else { setSt("bad"); playWrong(); await lose(); }
-    if (sp && soundOn()) setTimeout(() => speak(sp), 400);
+    if (c.correct) setSt("ok"); else { setSt("bad"); setSol(c.solution); await lose(); }
   };
   const next = async () => {
     if (st === "bad") { if (hearts <= 0) return; setQ((x) => [...x.slice(1), x[0]]); }
     else {
       const rest = q.slice(1); setDone((d) => d + 1);
-      if (!rest.length) { playDone(); setRes(await api.complete(id, mist)); return; }
+      if (!rest.length) { setRes(await api.complete(id, mist)); return; }
       setQ(rest);
     }
     setSt("idle"); setAns(""); setKey((k) => k + 1);
@@ -97,7 +83,6 @@ export default function Lesson() {
 
   if (res) return (
     <div className="lesson finish">
-      {Array.from({ length: 40 }).map((_, i) => <i key={i} className="confetti" style={{ left: `${(i * 53) % 100}%`, background: ["#ffc800", "#58cc02", "#1cb0f6", "#ff4b4b", "#ce82ff"][i % 5], animationDelay: `${(i % 10) * 0.12}s` }} />)}
       <Duo size={160} /><h1>Lesson complete!</h1>
       <div className="results">
         <div className="rbox" style={{ borderColor: "var(--y)", color: "var(--y)" }}><small>TOTAL XP</small><b>⚡ {res.xp}</b></div>
@@ -117,7 +102,7 @@ export default function Lesson() {
       <div className="body" key={key}>
         <h2>{ex.type === "choice" ? "Select the correct meaning" : ex.type === "wordbank" ? "Write this in Spanish" : ex.type === "fill" ? "Fill in the blank" : ex.type === "type" ? "Write this in Spanish" : "Tap the matching pairs"}</h2>
         {ex.type !== "match" && (
-          <div className="prompt"><Duo size={72} /><div className="bubble">{ex.type === "choice" && <button className="spk" onClick={() => speak((ex.prompt.match(/"(.+)"/) || [])[1])} aria-label="Listen">🔊</button>}{ex.prompt}{ex.data.hint && ex.type === "fill" && <small>{ex.data.hint}</small>}</div></div>
+          <div className="prompt"><Duo size={72} /><div className="bubble">{ex.prompt}{ex.data.hint && ex.type === "fill" && <small>{ex.data.hint}</small>}</div></div>
         )}
         {(ex.type === "choice" || ex.type === "fill") && (
           <div className="opts">{ex.data.options.map((o: string) => (
@@ -126,7 +111,6 @@ export default function Lesson() {
         )}
         {ex.type === "wordbank" && <WordBank bank={ex.data.bank} setAns={setAns} />}
         {ex.type === "type" && <input className="input" autoFocus placeholder="Type in Spanish" value={ans} disabled={st !== "idle"} onChange={(e) => setAns(e.target.value)} onKeyDown={(e) => e.key === "Enter" && check()} />}
-        {ex.type === "type" && st === "idle" && <Mic onResult={setAns} />}
         {ex.type === "match" && <Match pairs={ex.data.pairs} onWrong={lose} onDone={() => setAns("match")} />}
       </div>
       <footer className={"fb " + st}>
@@ -136,8 +120,7 @@ export default function Lesson() {
           <>
             <div className="msg">
               <span className="ico">{st === "ok" ? "✓" : "✕"}</span>
-              {spoken && <button className="spk" onClick={() => speak(spoken)} aria-label="Listen">🔊</button>}
-              <div><b>{st === "ok" ? "Nicely done!" : "Wrong!"}</b>{st === "bad" && <p>Correct answer: {sol}</p>}</div>
+              <div><b>{st === "ok" ? "Nicely done!" : "Correct solution:"}</b>{st === "bad" && <p>{sol}</p>}</div>
             </div>
             <button className={"btn " + (st === "ok" ? "green" : "red")} onClick={next}>Continue</button>
           </>
