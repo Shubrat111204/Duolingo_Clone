@@ -47,22 +47,7 @@ The objective was to build a functional language-learning web application inspir
 - Gamified UI and feedback
 - Seeded course content
 
-### Challenge Communication
 
-> Hi Shubrat,  
->   
-> Congratulations on clearing the challenge. Your next round is a take-home assignment: Duolingo Clone.  
->   
-> **Assignment brief:**  
-> https://docs.google.com/document/d/11nNKzKTzUIgLgaqKSrMmtVAPAuxHAYlJPWSqiQWlLDk/edit  
->   
-> **Submission:**  
-> https://forms.gle/YoM47ogDanmgDJaW8  
->   
-> **Submission deadline:** Wednesday, 7th October, 6:00 PM  
->   
-> Best,  
-> Scaler AI Labs Careers
 
 ---
 
