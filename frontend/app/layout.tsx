@@ -1,5 +1,4 @@
 import "./globals.css";
-import "./extras.css";
 import { Nunito } from "next/font/google";
 const nunito = Nunito({ subsets: ["latin"], weight: ["400", "700", "800", "900"] });
 export const metadata = { title: "Duolingo Clone", description: "Learn Spanish the fun way" };
