@@ -80,7 +80,9 @@ The screenshots below are taken from the actual implementation of this project.
 
 ## 🗺️ Learning Path
 
-![Learning Path](docs/screenshots/learning-path.png)
+![Learning Path](Learning1.png)
+![Learning Path](Learning2.png)
+
 
 The learning path provides a visual progression through units and skills, with available, completed and locked states.
 
@@ -88,7 +90,7 @@ The learning path provides a visual progression through units and skills, with a
 
 ## 📚 Interactive Lesson
 
-![Lesson Player](docs/screenshots/lesson.png)
+![Lesson Player](Lesson.png)
 
 The lesson player contains multiple exercise formats with immediate feedback, progress tracking and the heart system.
 
@@ -96,7 +98,7 @@ The lesson player contains multiple exercise formats with immediate feedback, pr
 
 ## 🏆 Leaderboard
 
-![Leaderboard](docs/screenshots/leaderboard.png)
+![Leaderboard](leaderboard.png)
 
 The leaderboard provides a gamified comparison of learner XP using seeded learner data.
 
@@ -104,7 +106,7 @@ The leaderboard provides a gamified comparison of learner XP using seeded learne
 
 ## 👤 Learner Profile
 
-![Profile](docs/screenshots/profile.png)
+![Profile](profile.png)
 
 The profile section displays learner statistics including XP, streak and learning progress.
 
